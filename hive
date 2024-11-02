@@ -1,0 +1,44 @@
+export REGION=europe-west6
+gsutil cp nyc-flights.csv gs://dataproc-336316-warehouse/nyc-flights.csv
+________________________________________________________________________________
+
+yesser_rabhi@cloudshell:~ (dataproc-336316)$  gcloud compute ssh hive-cluster-m
+beeline -u "jdbc:hive2://localhost:10000"
+
+
+CREATE EXTERNAL TABLE flights
+(year STRING,
+month STRING,
+day STRING,
+dep_time STRING,
+dep_delay STRING,
+arr_time STRING,
+arr_delay STRING,
+carrier STRING,
+tailnum STRING,
+flight STRING,
+origin STRING,
+dest STRING,
+air_time STRING,
+distance STRING,
+hour STRING,
+minute STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+LOCATION 'gs://dataproc-336316-warehouse/';
+
+exit
+
+
+______________________________________________
+gcloud dataproc jobs submit hive \
+    --cluster hive-cluster \
+    --region ${REGION} \
+    --execute "
+      SELECT *
+      FROM flights
+      LIMIT 10;"
+
+gcloud dataproc jobs submit hive --cluster hive-cluster --region ${REGION} --execute "SELECT count(*) FROM flights;"
+
+
+_________________________________________________
